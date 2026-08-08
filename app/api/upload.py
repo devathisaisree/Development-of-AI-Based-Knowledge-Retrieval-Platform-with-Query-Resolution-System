@@ -1,7 +1,7 @@
 """Document upload and ingestion API."""
 
 from __future__ import annotations
-
+from typing import Annotated
 import tempfile
 from pathlib import Path
 
@@ -31,7 +31,7 @@ async def list_documents(
 
 @router.post("", response_model=UploadResponse)
 async def upload_documents(
-    files: list[UploadFile] = File(...),
+    files: Annotated[list[UploadFile],File(...)],
     _user: UserPublic = Depends(get_current_user),
     service: UploadService = Depends(get_upload_service),
 ) -> UploadResponse:

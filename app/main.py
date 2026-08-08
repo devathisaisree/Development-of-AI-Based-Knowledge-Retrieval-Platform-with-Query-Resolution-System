@@ -2,6 +2,7 @@
 
 from contextlib import asynccontextmanager
 
+from fastapi.openapi.utils import get_openapi
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -47,5 +48,37 @@ def create_app() -> FastAPI:
 
     return app
 
-
 app = create_app()
+app = create_app()
+
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+
+    schema = get_openapi(
+        title=app.title,
+        version="1.0.0",
+        description=app.description,
+        routes=app.routes,
+    )
+
+    # Fix Swagger file upload display
+    schemas = schema.get("components", {}).get("schemas", {})
+
+    for model in schemas.values():
+        properties = model.get("properties", {})
+
+        for prop in properties.values():
+            if prop.get("type") == "array":
+                items = prop.get("items", {})
+
+                if items.get("contentMediaType") == "application/octet-stream":
+                    items["format"] = "binary"
+                    items.pop("contentMediaType", None)
+
+    app.openapi_schema = schema
+    return app.openapi_schema
+
+
+app.openapi = custom_openapi

@@ -38,7 +38,7 @@ class Settings(BaseSettings):
 
     # Ollama (used when llm_provider=ollama)
     ollama_base_url: str = "http://localhost:11434"
-    llm_model: str = "granite4.1:8b"
+    llm_model: str = "llama3.2:1b"
     llm_seed: int = 42
     # Ollama allocates a KV cache sized to this window; lower it on low-RAM machines.
     llm_num_ctx: int = 4096
