@@ -133,36 +133,90 @@ The retrieved information is then provided to the language model as context to g
 
 
 ## Project Structure
-
 ```text
 AI-POWERED-QUERY-RESOLUTION-PROJECT/
 │
 └── AI-Powered-Intelligent-Query-Resolution-System/
     │
     ├── app/
+    │   │
     │   ├── api/
+    │   │   ├── __init__.py
     │   │   ├── auth.py
-    │   │   ├── upload.py
-    │   │   └── query.py
+    │   │   ├── query.py
+    │   │   └── upload.py
+    │   │
+    │   ├── agents/
+    │   │   ├── __init__.py
+    │   │   ├── edges.py
+    │   │   ├── execution_logger.py
+    │   │   ├── graph.py
+    │   │   ├── nodes.py
+    │   │   ├── prompts.py
+    │   │   ├── schemas.py
+    │   │   ├── state.py
+    │   │   ├── token_utils.py
+    │   │   └── tools.py
     │   │
     │   ├── auth/
+    │   │
     │   ├── core/
+    │   │   ├── __init__.py
+    │   │   ├── config.py
+    │   │   └── exceptions.py
+    │   │
     │   ├── database/
-    │   ├── models/
-    │   ├── rag/
-    │   ├── agents/
+    │   │
     │   ├── llm/
-    │   ├── transparency/
+    │   │
     │   ├── memory/
-    │   ├── services/
+    │   │
+    │   ├── models/
+    │   │
+    │   ├── rag/
+    │   │
     │   ├── schemas/
+    │   │   ├── __init__.py
+    │   │   ├── auth.py
+    │   │   ├── query.py
+    │   │   └── rag.py
+    │   │
+    │   ├── services/
+    │   │
+    │   ├── transparency/
+    │   │
     │   └── ui/
+    │       ├── __init__.py
+    │       └── gradio_app.py
+    │
+    ├── frontend/
+    │   └── index.html
     │
     ├── tests/
+    │   ├── agent/
+    │   │   ├── test_edges.py
+    │   │   ├── test_graph.py
+    │   │   ├── test_tools.py
+    │   │   └── test_transparency.py
+    │   │
+    │   ├── rag/
+    │   │   ├── __init__.py
+    │   │   ├── test_config.py
+    │   │   └── test_vector_store.py
+    │   │
+    │   ├── __init__.py
+    │   ├── test_auth.py
+    │   └── test_llm_factory.py
+    │
     ├── uploads/
+    │
     ├── docker/
+    │   └── chroma-config.yaml
+    │
     ├── dependencies.py
     ├── main.py
     ├── pyproject.toml
+    ├── README.md
     ├── .env.example
-    └── README.md
+    ├── .gitignore
+    └── uv.lock
