@@ -5,7 +5,17 @@ from contextlib import asynccontextmanager
 from fastapi.openapi.utils import get_openapi
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+app=FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://127.0.0.1:5173",
+        "http://localhost:5173"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 from app.api import auth_router, query_router, upload_router
 from app.core.config import get_settings
 from app.database.connection import init_db
@@ -49,8 +59,6 @@ def create_app() -> FastAPI:
     return app
 
 app = create_app()
-app = create_app()
-
 
 def custom_openapi():
     if app.openapi_schema:

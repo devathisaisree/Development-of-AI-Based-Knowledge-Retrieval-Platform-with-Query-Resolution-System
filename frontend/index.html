@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Query Resolution System</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #087bea, #123d9b);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: white;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1264b0;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .form {
+            display: none;
+        }
+
+        .form.active {
+            display: block;
+        }
+
+        h2 {
+            color: #163d68;
+            margin-bottom: 20px;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: #1685e5;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background: #1685e5;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 12px;
+        }
+
+        button:hover {
+            background: #0869c2;
+        }
+
+        button:disabled {
+            background: #999;
+            cursor: not-allowed;
+        }
+
+        .switch {
+            text-align: center;
+            margin-top: 12px;
+            color: #555;
+        }
+
+        .switch span {
+            color: #087bea;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .message {
+            text-align: center;
+            margin: 15px 0;
+            min-height: 22px;
+            font-weight: bold;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .error {
+            color: red;
+        }
+
+        #dashboard {
+            display: none;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .topbar h2 {
+            margin: 0;
+        }
+
+        .small-button {
+            width: auto;
+            padding: 10px 18px;
+            margin: 0;
+        }
+
+        .section {
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section h3 {
+            color: #164e82;
+            margin-bottom: 15px;
+        }
+
+        .answer-box {
+            background: #f4f8fc;
+            border-left: 4px solid #1685e5;
+            padding: 18px;
+            border-radius: 8px;
+            margin-top: 15px;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        .info-box {
+            background: #f7f7f7;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .documents {
+            margin-top: 15px;
+        }
+
+        .document-item {
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .loading {
+            color: #1264b0;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <h1>AI Query Resolution</h1>
+
+    <p class="subtitle">
+        Welcome to your intelligent assistant
+    </p>
+
+
+    <!-- SIGNUP -->
+
+    <div id="signupForm" class="form active">
+
+        <h2>Create Account</h2>
+
+        <input
+            type="text"
+            id="signupName"
+            placeholder="Full Name"
+        >
+
+        <input
+            type="email"
+            id="signupEmail"
+            placeholder="Email"
+        >
+
+        <input
+            type="password"
+            id="signupPassword"
+            placeholder="Password (minimum 8 characters)"
+        >
+
+        <button
+            type="button"
+            onclick="signup()"
+        >
+            Create Account
+        </button>
+
+        <div id="signupMessage" class="message"></div>
+
+        <p class="switch">
+
+            Already have an account?
+
+            <span onclick="showLogin()">
+                Login
+            </span>
+
+        </p>
+
+    </div>
+
+
+    <!-- LOGIN -->
+
+    <div id="loginForm" class="form">
+
+        <h2>Login</h2>
+
+        <input
+            type="email"
+            id="loginEmail"
+            placeholder="Email"
+        >
+
+        <input
+            type="password"
+            id="loginPassword"
+            placeholder="Password"
+        >
+
+        <button
+            type="button"
+            onclick="login()"
+        >
+            Login
+        </button>
+
+        <div id="loginMessage" class="message"></div>
+
+        <p class="switch">
+
+            Don't have an account?
+
+            <span onclick="showSignup()">
+                Sign Up
+            </span>
+
+        </p>
+
+    </div>
+
+
+    <!-- DASHBOARD -->
+
+    <div id="dashboard">
+
+        <div class="topbar">
+
+            <h2>AI Assistant</h2>
+
+            <button
+                type="button"
+                class="small-button"
+                onclick="logout()"
+            >
+                Logout
+            </button>
+
+        </div>
+
+
+        <!-- ASK QUESTION -->
+
+        <div class="section">
+
+            <h3>Ask a Question</h3>
+
+            <textarea
+                id="question"
+                placeholder="Enter your question here..."
+            ></textarea>
+
+            <button
+                type="button"
+                id="askButton"
+                onclick="askQuestion()"
+            >
+                Ask Question
+            </button>
+
+            <button
+                type="button"
+                onclick="resetConversation()"
+            >
+                Reset Conversation
+            </button>
+
+            <div
+                id="queryMessage"
+                class="message"
+            ></div>
+
+            <div
+                id="answerBox"
+                class="answer-box hidden"
+            ></div>
+
+            <div
+                id="confidenceBox"
+                class="info-box hidden"
+            ></div>
+
+            <div
+                id="sourcesBox"
+                class="info-box hidden"
+            ></div>
+
+            <div
+                id="citationsBox"
+                class="info-box hidden"
+            ></div>
+
+        </div>
+
+
+        <!-- UPLOAD -->
+
+        <div class="section">
+
+            <h3>Upload Documents</h3>
+
+            <input
+                type="file"
+                id="documentFiles"
+                multiple
+                accept=".pdf,.docx"
+            >
+
+            <button
+                type="button"
+                id="uploadButton"
+                onclick="uploadDocuments()"
+            >
+                Upload Documents
+            </button>
+
+            <div
+                id="uploadMessage"
+                class="message"
+            ></div>
+
+        </div>
+
+
+        <!-- DOCUMENTS -->
+
+        <div class="section">
+
+            <h3>Available Documents</h3>
+
+            <button
+                type="button"
+                onclick="loadDocuments()"
+            >
+                Refresh Documents
+            </button>
+
+            <div
+                id="documentsList"
+                class="documents"
+            >
+                No documents loaded.
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+
+    /* =====================================================
+       API
+       ===================================================== */
+
+    const API_URL = "http://127.0.0.1:8000";
+
+
+    /* =====================================================
+       MESSAGE FUNCTION
+       ===================================================== */
+
+    function setMessage(elementId, text, type = "") {
+
+        const element = document.getElementById(elementId);
+
+        if (!element) {
+            return;
+        }
+
+        element.innerText = text;
+
+        element.className = "message " + type;
+    }
+
+
+    /* =====================================================
+       SHOW LOGIN
+       ===================================================== */
+
+    function showLogin() {
+
+        document
+            .getElementById("signupForm")
+            .classList.remove("active");
+
+        document
+            .getElementById("loginForm")
+            .classList.add("active");
+
+        document
+            .getElementById("dashboard")
+            .style.display = "none";
+
+        setMessage("signupMessage", "");
+        setMessage("loginMessage", "");
+    }
+
+
+    /* =====================================================
+       SHOW SIGNUP
+       ===================================================== */
+
+    function showSignup() {
+
+        document
+            .getElementById("loginForm")
+            .classList.remove("active");
+
+        document
+            .getElementById("signupForm")
+            .classList.add("active");
+
+        document
+            .getElementById("dashboard")
+            .style.display = "none";
+
+        setMessage("signupMessage", "");
+        setMessage("loginMessage", "");
+    }
+
+
+    /* =====================================================
+       SIGNUP
+       ===================================================== */
+
+    async function signup() {
+
+        const name =
+            document
+                .getElementById("signupName")
+                .value
+                .trim();
+
+        const email =
+            document
+                .getElementById("signupEmail")
+                .value
+                .trim();
+
+        const password =
+            document
+                .getElementById("signupPassword")
+                .value;
+
+
+        if (!name || !email || !password) {
+
+            setMessage(
+                "signupMessage",
+                "Please fill all fields.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (password.length < 8) {
+
+            setMessage(
+                "signupMessage",
+                "Password must contain at least 8 characters.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        setMessage(
+            "signupMessage",
+            "Creating account..."
+        );
+
+
+        try {
+
+            const response = await fetch(
+                `${API_URL}/auth/signup`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    credentials: "include",
+
+                    body: JSON.stringify({
+                        name: name,
+                        email: email,
+                        password: password
+                    })
+                }
+            );
+
+
+            const data = await response.json();
+
+
+            if (response.ok) {
+
+                setMessage(
+                    "signupMessage",
+                    "Signup successful! Please login.",
+                    "success"
+                );
+
+
+                document
+                    .getElementById("signupName")
+                    .value = "";
+
+                document
+                    .getElementById("signupEmail")
+                    .value = "";
+
+                document
+                    .getElementById("signupPassword")
+                    .value = "";
+
+
+                setTimeout(
+                    showLogin,
+                    1000
+                );
+
+            }
+
+            else {
+
+                setMessage(
+                    "signupMessage",
+                    data.detail || "Signup failed.",
+                    "error"
+                );
+            }
+
+        }
+
+
+        catch (error) {
+
+            console.error(error);
+
+            setMessage(
+                "signupMessage",
+                "Cannot connect to server. Make sure FastAPI is running.",
+                "error"
+            );
+        }
+    }
+
+
+    /* =====================================================
+       LOGIN
+       ===================================================== */
+
+    async function login() {
+
+        const email =
+            document
+                .getElementById("loginEmail")
+                .value
+                .trim();
+
+        const password =
+            document
+                .getElementById("loginPassword")
+                .value;
+
+
+        if (!email || !password) {
+
+            setMessage(
+                "loginMessage",
+                "Please enter email and password.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        setMessage(
+            "loginMessage",
+            "Logging in..."
+        );
+
+
+        try {
+
+            const response = await fetch(
+                `${API_URL}/auth/login`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    credentials: "include",
+
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                }
+            );
+
+
+            const data = await response.json();
+
+
+            if (response.ok) {
+
+                setMessage(
+                    "loginMessage",
+                    "Login successful!",
+                    "success"
+                );
+
+
+                console.log(
+                    "Logged in user:",
+                    data.user
+                );
+
+
+                setTimeout(
+                    function() {
+
+                        document
+                            .getElementById("loginForm")
+                            .classList.remove("active");
+
+                        document
+                            .getElementById("signupForm")
+                            .classList.remove("active");
+
+                        document
+                            .getElementById("dashboard")
+                            .style.display = "block";
+
+                        loadDocuments();
+
+                    },
+                    500
+                );
+
+            }
+
+            else {
+
+                setMessage(
+                    "loginMessage",
+                    data.detail ||
+                    "Invalid email or password.",
+                    "error"
+                );
+            }
+
+        }
+
+
+        catch (error) {
+
+            console.error(error);
+
+            setMessage(
+                "loginMessage",
+                "Cannot connect to server. Make sure FastAPI is running.",
+                "error"
+            );
+        }
+    }
+
+
+    /* =====================================================
+       ASK QUESTION
+       ===================================================== */
+
+    async function askQuestion() {
+
+        const question =
+            document
+                .getElementById("question")
+                .value
+                .trim();
+
+
+        if (!question) {
+
+            setMessage(
+                "queryMessage",
+                "Please enter a question.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        const button =
+            document.getElementById("askButton");
+
+        button.disabled = true;
+
+
+        setMessage(
+            "queryMessage",
+            "Thinking..."
+        );
+
+
+        document
+            .getElementById("answerBox")
+            .classList.add("hidden");
+
+        document
+            .getElementById("confidenceBox")
+            .classList.add("hidden");
+
+        document
+            .getElementById("sourcesBox")
+            .classList.add("hidden");
+
+        document
+            .getElementById("citationsBox")
+            .classList.add("hidden");
+
+
+        try {
+
+            const response = await fetch(
+                `${API_URL}/query`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    credentials: "include",
+
+                    body: JSON.stringify({
+                        question: question
+                    })
+                }
+            );
+
+
+            const data = await response.json();
+
+
+            if (response.ok) {
+
+                setMessage(
+                    "queryMessage",
+                    "Answer generated successfully.",
+                    "success"
+                );
+
+
+                const answerBox =
+                    document.getElementById("answerBox");
+
+
+                answerBox.innerText =
+                    data.answer ||
+                    data.response ||
+                    "No answer returned.";
+
+
+                answerBox
+                    .classList
+                    .remove("hidden");
+
+
+                if (data.confidence !== undefined) {
+
+                    const confidenceBox =
+                        document.getElementById(
+                            "confidenceBox"
+                        );
+
+
+                    confidenceBox.innerText =
+                        "Confidence: " +
+                        data.confidence;
+
+
+                    confidenceBox
+                        .classList
+                        .remove("hidden");
+                }
+
+
+                if (data.sources) {
+
+                    const sourcesBox =
+                        document.getElementById(
+                            "sourcesBox"
+                        );
+
+
+                    sourcesBox.innerHTML =
+                        "<strong>Sources:</strong><br>" +
+                        formatData(data.sources);
+
+
+                    sourcesBox
+                        .classList
+                        .remove("hidden");
+                }
+
+
+                if (data.citations) {
+
+                    const citationsBox =
+                        document.getElementById(
+                            "citationsBox"
+                        );
+
+
+                    citationsBox.innerHTML =
+                        "<strong>Citations:</strong><br>" +
+                        formatData(data.citations);
+
+
+                    citationsBox
+                        .classList
+                        .remove("hidden");
+                }
+
+            }
+
+            else {
+
+                setMessage(
+                    "queryMessage",
+                    data.detail || "Query failed.",
+                    "error"
+                );
+            }
+
+        }
+
+
+        catch (error) {
+
+            console.error(error);
+
+            setMessage(
+                "queryMessage",
+                "Cannot connect to query server.",
+                "error"
+            );
+
+        }
+
+
+        finally {
+
+            button.disabled = false;
+        }
+    }
+
+
+    /* =====================================================
+       FORMAT DATA
+       ===================================================== */
+
+    function formatData(data) {
+
+        if (Array.isArray(data)) {
+
+            return data
+                .map(function(item) {
+
+                    if (typeof item === "object") {
+
+                        return JSON.stringify(item);
+                    }
+
+                    return String(item);
+
+                })
+                .join("<br>");
+        }
+
+
+        if (typeof data === "object") {
+
+            return JSON.stringify(
+                data,
+                null,
+                2
+            ).replace(/\n/g, "<br>");
+        }
+
+
+        return String(data);
+    }
+
+
+    /* =====================================================
+       RESET CONVERSATION
+       ===================================================== */
+
+    async function resetConversation() {
+
+        setMessage(
+            "queryMessage",
+            "Resetting conversation..."
+        );
+
+
+        try {
+
+            const response = await fetch(
+                `${API_URL}/query/reset`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    credentials: "include"
+                }
+            );
+
+
+            const data = await response.json();
+
+
+            if (response.ok) {
+
+                document
+                    .getElementById("question")
+                    .value = "";
+
+                document
+                    .getElementById("answerBox")
+                    .classList.add("hidden");
+
+                document
+                    .getElementById("confidenceBox")
+                    .classList.add("hidden");
+
+                document
+                    .getElementById("sourcesBox")
+                    .classList.add("hidden");
+
+                document
+                    .getElementById("citationsBox")
+                    .classList.add("hidden");
+
+
+                setMessage(
+                    "queryMessage",
+                    data.message ||
+                    "Conversation reset successfully.",
+                    "success"
+                );
+
+            }
+
+            else {
+
+                setMessage(
+                    "queryMessage",
+                    data.detail ||
+                    "Failed to reset conversation.",
+                    "error"
+                );
+            }
+
+        }
+
+
+        catch (error) {
+
+            console.error(error);
+
+            setMessage(
+                "queryMessage",
+                "Cannot connect to server.",
+                "error"
+            );
+        }
+    }
+
+
+    /* =====================================================
+       UPLOAD DOCUMENTS
+       ===================================================== */
+
+    async function uploadDocuments() {
+
+        const fileInput =
+            document.getElementById("documentFiles");
+
+        const files =
+            fileInput.files;
+
+
+        if (!files || files.length === 0) {
+
+            setMessage(
+                "uploadMessage",
+                "Please select at least one document.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        const formData =
+            new FormData();
+
+
+        for (
+            let i = 0;
+            i < files.length;
+            i++
+        ) {
+
+            formData.append(
+                "files",
+                files[i]
+            );
+        }
+
+
+        const button =
+            document.getElementById("uploadButton");
+
+        button.disabled = true;
+
+
+        setMessage(
+            "uploadMessage",
+            "Uploading documents..."
+        );
+
+
+        try {
+
+            const response = await fetch(
+                `${API_URL}/documents/upload`,
+                {
+                    method: "POST",
+
+                    credentials: "include",
+
+                    body: formData
+                }
+            );
+
+
+            const data =
+                await response.json();
+
+
+            if (response.ok) {
+
+                setMessage(
+                    "uploadMessage",
+                    data.message ||
+                    "Documents uploaded successfully.",
+                    "success"
+                );
+
+
+                fileInput.value = "";
+
+
+                loadDocuments();
+
+            }
+
+            else {
+
+                setMessage(
+                    "uploadMessage",
+                    data.detail ||
+                    "Document upload failed.",
+                    "error"
+                );
+            }
+
+        }
+
+
+        catch (error) {
+
+            console.error(error);
+
+            setMessage(
+                "uploadMessage",
+                "Cannot connect to server.",
+                "error"
+            );
+
+        }
+
+
+        finally {
+
+            button.disabled = false;
+        }
+    }
+
+
+    /* =====================================================
+       LOAD DOCUMENTS
+       ===================================================== */
+
+    async function loadDocuments() {
+
+        const list =
+            document.getElementById(
+                "documentsList"
+            );
+
+
+        list.innerHTML =
+            '<div class="loading">Loading documents...</div>';
+
+
+        try {
+
+            const response = await fetch(
+                `${API_URL}/documents`,
+                {
+                    method: "GET",
+
+                    credentials: "include"
+                }
+            );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                list.innerText =
+                    data.detail ||
+                    "Unable to load documents.";
+
+                return;
+            }
+
+
+            const documents =
+                data.documents || data;
+
+
+            if (
+                !Array.isArray(documents) ||
+                documents.length === 0
+            ) {
+
+                list.innerText =
+                    "No documents available.";
+
+                return;
+            }
+
+
+            list.innerHTML = "";
+
+
+            documents.forEach(
+                function(documentItem) {
+
+                    const item =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    item.className =
+                        "document-item";
+
+
+                    if (
+                        typeof documentItem ===
+                        "string"
+                    ) {
+
+                        item.innerText =
+                            documentItem;
+
+                    }
+
+                    else {
+
+                        item.innerText =
+                            documentItem.name ||
+                            documentItem.filename ||
+                            documentItem.file_name ||
+                            JSON.stringify(
+                                documentItem
+                            );
+                    }
+
+
+                    list.appendChild(item);
+
+                }
+            );
+
+        }
+
+
+        catch (error) {
+
+            console.error(error);
+
+            list.innerText =
+                "Cannot connect to server.";
+        }
+    }
+
+
+    /* =====================================================
+       LOGOUT
+       ===================================================== */
+
+    async function logout() {
+
+        try {
+
+            await fetch(
+                `${API_URL}/auth/logout`,
+                {
+                    method: "POST",
+
+                    credentials: "include"
+                }
+            );
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+        }
+
+
+        document
+            .getElementById("dashboard")
+            .style.display = "none";
+
+
+        document
+            .getElementById("loginForm")
+            .classList.add("active");
+
+
+        document
+            .getElementById("signupForm")
+            .classList.remove("active");
+
+
+        document
+            .getElementById("loginEmail")
+            .value = "";
+
+
+        document
+            .getElementById("loginPassword")
+            .value = "";
+
+
+        setMessage(
+            "loginMessage",
+            "Logged out successfully.",
+            "success"
+        );
+    }
+
+
+    /* =====================================================
+       CHECK LOGIN SESSION
+       ===================================================== */
+
+    async function checkSession() {
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API_URL}/auth/me`,
+                    {
+                        method: "GET",
+
+                        credentials: "include"
+                    }
+                );
+
+
+            if (response.ok) {
+
+                document
+                    .getElementById("signupForm")
+                    .classList.remove("active");
+
+
+                document
+                    .getElementById("loginForm")
+                    .classList.remove("active");
+
+
+                document
+                    .getElementById("dashboard")
+                    .style.display = "block";
+
+
+                loadDocuments();
+            }
+
+        }
+
+        catch (error) {
+
+            console.log(
+                "No active login session."
+            );
+        }
+    }
+
+
+    /* =====================================================
+       START APPLICATION
+       ===================================================== */
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function() {
+
+            checkSession();
+
+        }
+    );
+
+
+</script>
+
+</body>
+
+</html>
